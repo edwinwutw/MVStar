@@ -37,10 +37,10 @@ import static android.Manifest.permission.READ_CONTACTS;
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity implements LoginView {
 
-    // Controller
-    private LoginController mController = null;
+    // Presenter
+    private LoginPresenter mPresenter = null;
 
     // UI references.
     private AutoCompleteTextView mEmailView;
@@ -56,14 +56,14 @@ public class LoginActivity extends AppCompatActivity {
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         mPasswordView = (EditText) findViewById(R.id.password);
 
-        // Set up Controller
-        mController = new LoginController(this, mEmailView, mPasswordView);
+        // Set up Presenter
+        mPresenter = new LoginPresenter(this);
 
         Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                mController.attemptLogin();
+                mPresenter.attemptLogin();
             }
         });
 
@@ -75,6 +75,7 @@ public class LoginActivity extends AppCompatActivity {
      * Shows the progress UI and hides the login form.
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    @Override
     public void showProgress(final boolean show) {
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
         // for very easy animations. If available, use these APIs to fade-in
@@ -105,6 +106,50 @@ public class LoginActivity extends AppCompatActivity {
             mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
             mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
+    }
+
+    @Override
+    public String getEmail() {
+        return mEmailView.getText().toString();
+    }
+
+    @Override
+    public String getPassword() {
+        return mPasswordView.getText().toString();
+    }
+
+    @Override
+    public void setEmailError(int id) {
+        mEmailView.setError(getString(id));
+    }
+
+    @Override
+    public void setPasswordError(int id) {
+        mPasswordView.setError(getString(id));
+    }
+
+    @Override
+    public void requestEmailFocus() {
+        mEmailView.requestFocus();
+    }
+
+    @Override
+    public void requestPasswordFocus() {
+        mPasswordView.requestFocus();
+    }
+
+    @Override
+    public void informAboutLoginSuccess(String token) {
+        Snackbar mySnackbar = Snackbar.make(findViewById(R.id.login_form),
+                "Login succeed. Token: " + token, Snackbar.LENGTH_SHORT);
+        mySnackbar.show();
+    }
+
+    @Override
+    public void informAboutError(Throwable error) {
+        Snackbar mySnackbar = Snackbar.make(findViewById(R.id.login_form),
+                "Error: " + error.getMessage(), Snackbar.LENGTH_SHORT);
+        mySnackbar.show();
     }
 }
 

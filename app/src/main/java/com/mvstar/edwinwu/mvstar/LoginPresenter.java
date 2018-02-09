@@ -12,21 +12,16 @@ import java.util.List;
  * Created by edwinwu on 2018/2/9.
  */
 
-public class LoginController {
+public class LoginPresenter {
 
-    private LoginActivity mLoginActivity;
-    private AutoCompleteTextView mEmailView;
-    private EditText mPasswordView;
-
+    private LoginView mLoginView;
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
-    private LoginController.UserLoginTask mAuthTask = null;
+    private LoginPresenter.UserLoginTask mAuthTask = null;
 
-    public LoginController(LoginActivity loginActivity, AutoCompleteTextView emailView, EditText passwordView) {
-        mLoginActivity = loginActivity;
-        mEmailView = emailView;
-        mPasswordView = passwordView;
+    public LoginPresenter(LoginView view) {
+        mLoginView = view;
     }
 
     /**
@@ -35,47 +30,48 @@ public class LoginController {
      * errors are presented and no actual login attempt is made.
      */
     public void attemptLogin() {
-        // Reset errors.
-        mEmailView.setError(null);
-        mPasswordView.setError(null);
-
         // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
+        String email = mLoginView.getEmail();
+        String password = mLoginView.getPassword();
 
-        boolean cancel = false;
-        View focusView = null;
+        Integer passwordErrorId = getPasswordErrorId(password);
+        if (passwordErrorId != null)
+            mLoginView.setPasswordError(passwordErrorId.intValue());
 
-        // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordView.setError(mLoginActivity.getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
-            cancel = true;
-        }
+        Integer emailErrorId = getEmailErrorId(email);
+        if (emailErrorId != null)
+           mLoginView.setEmailError(emailErrorId.intValue());
 
-        // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
-            mEmailView.setError(mLoginActivity.getString(R.string.error_field_required));
-            focusView = mEmailView;
-            cancel = true;
-        } else if (!isEmailValid(email)) {
-            mEmailView.setError(mLoginActivity.getString(R.string.error_invalid_email));
-            focusView = mEmailView;
-            cancel = true;
-        }
 
-        if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
-            focusView.requestFocus();
-        } else {
+        if (emailErrorId != null)
+            mLoginView.requestEmailFocus();
+        else if (passwordErrorId != null)
+            mLoginView.requestPasswordFocus();
+        else {
             // Start show UI progress
             // Show a progress spinner, and kick off a background task to
-            mLoginActivity.showProgress(true);
-            mAuthTask = new LoginController.UserLoginTask(email, password);
+            mLoginView.showProgress(true);
+            mAuthTask = new LoginPresenter.UserLoginTask(email, password);
             mAuthTask.execute((Void) null);
-
         }
+    }
+
+    private Integer getEmailErrorId(String email) {
+        if (email.isEmpty())
+            return R.string.error_field_required;
+        else if (!isEmailValid(email))
+            return R.string.error_invalid_email;
+        else
+            return null;
+    }
+
+    private Integer getPasswordErrorId(String password) {
+        if (password.isEmpty())
+            return R.string.error_field_required;
+        else if (!isPasswordValid(password))
+            return R.string.error_invalid_password;
+        else
+            return null;
     }
 
     private boolean isEmailValid(String email) {
@@ -125,20 +121,20 @@ public class LoginController {
         @Override
         protected void onPostExecute(final Boolean success) {
             mAuthTask = null;
-            mLoginActivity.showProgress(false);
+            mLoginView.showProgress(false);
 
             if (success) {
-                mLoginActivity.finish();
+                mLoginView.informAboutLoginSuccess("token");
             } else {
-                mPasswordView.setError(mLoginActivity.getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
+                mLoginView.setPasswordError(R.string.error_incorrect_password);
+                mLoginView.requestPasswordFocus();
             }
         }
 
         @Override
         protected void onCancelled() {
             mAuthTask = null;
-            mLoginActivity.showProgress(false);
+            mLoginView.showProgress(false);
         }
     }
 }
