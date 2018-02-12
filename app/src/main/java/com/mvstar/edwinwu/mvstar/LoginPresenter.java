@@ -108,6 +108,7 @@ public class LoginPresenter {
             // get credentials from repository
             String[] DUMMYLIST = LoginRepository.getInstance().attemptGetCrenditials();
 
+            emailMatched = false;
             for (String credential : DUMMYLIST) {
                 String[] pieces = credential.split(":");
                 if (pieces[0].equals(mEmail)) {
