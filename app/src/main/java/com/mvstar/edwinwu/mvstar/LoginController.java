@@ -74,7 +74,6 @@ public class LoginController {
             mLoginActivity.showProgress(true);
             mAuthTask = new LoginController.UserLoginTask(email, password);
             mAuthTask.execute((Void) null);
-
         }
     }
 
@@ -98,6 +97,8 @@ public class LoginController {
         private final String mEmail;
         private final String mPassword;
 
+        private boolean emailMatched;
+
         UserLoginTask(String email, String password) {
             mEmail = email;
             mPassword = password;
@@ -110,10 +111,12 @@ public class LoginController {
             // get credentials from repository
             String[] DUMMYLIST = LoginRepository.getInstance().attemptGetCrenditials();
 
+            emailMatched = false;
             for (String credential : DUMMYLIST) {
                 String[] pieces = credential.split(":");
                 if (pieces[0].equals(mEmail)) {
                     // Account exists, return true if the password matches.
+                    emailMatched = true;
                     return pieces[1].equals(mPassword);
                 }
             }
@@ -128,10 +131,16 @@ public class LoginController {
             mLoginActivity.showProgress(false);
 
             if (success) {
-                mLoginActivity.finish();
+                mLoginActivity.informAboutLoginSuccess("token");
             } else {
-                mPasswordView.setError(mLoginActivity.getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
+                boolean isemailerror = !emailMatched;
+                if (isemailerror) {
+                    mEmailView.setError(mLoginActivity.getString(R.string.error_invalid_email));
+                    mEmailView.requestFocus();
+                } else {
+                    mPasswordView.setError(mLoginActivity.getString(R.string.error_incorrect_password));
+                    mPasswordView.requestFocus();
+                }
             }
         }
 
