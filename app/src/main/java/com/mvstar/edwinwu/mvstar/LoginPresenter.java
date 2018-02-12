@@ -94,6 +94,8 @@ public class LoginPresenter {
         private final String mEmail;
         private final String mPassword;
 
+        private boolean emailMatched;
+
         UserLoginTask(String email, String password) {
             mEmail = email;
             mPassword = password;
@@ -110,6 +112,7 @@ public class LoginPresenter {
                 String[] pieces = credential.split(":");
                 if (pieces[0].equals(mEmail)) {
                     // Account exists, return true if the password matches.
+                    emailMatched = true;
                     return pieces[1].equals(mPassword);
                 }
             }
@@ -126,8 +129,14 @@ public class LoginPresenter {
             if (success) {
                 mLoginView.informAboutLoginSuccess("token");
             } else {
-                mLoginView.setPasswordError(R.string.error_incorrect_password);
-                mLoginView.requestPasswordFocus();
+                boolean isemailerror = !emailMatched;
+                if (isemailerror) {
+                    mLoginView.setEmailError(R.string.error_invalid_email);
+                    mLoginView.requestEmailFocus();
+                } else {
+                    mLoginView.setPasswordError(R.string.error_incorrect_password);
+                    mLoginView.requestPasswordFocus();
+                }
             }
         }
 
