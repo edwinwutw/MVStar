@@ -6,6 +6,7 @@ import android.annotation.TargetApi;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
@@ -164,6 +165,8 @@ public class LoginActivity extends AppCompatActivity {
         private final String mEmail;
         private final String mPassword;
 
+        private boolean emailMatched;
+
         UserLoginTask(String email, String password) {
             mEmail = email;
             mPassword = password;
@@ -180,10 +183,12 @@ public class LoginActivity extends AppCompatActivity {
                 return false;
             }
 
+            emailMatched = false;
             for (String credential : DUMMY_CREDENTIALS) {
                 String[] pieces = credential.split(":");
                 if (pieces[0].equals(mEmail)) {
                     // Account exists, return true if the password matches.
+                    emailMatched = true;
                     return pieces[1].equals(mPassword);
                 }
             }
@@ -198,10 +203,16 @@ public class LoginActivity extends AppCompatActivity {
             showProgress(false);
 
             if (success) {
-                finish();
+                informAboutLoginSuccess("token");
             } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
+                boolean isemailerror = !emailMatched;
+                if (isemailerror) {
+                    mEmailView.setError(getString(R.string.error_invalid_email));
+                    mEmailView.requestFocus();
+                } else {
+                    mPasswordView.setError(getString(R.string.error_incorrect_password));
+                    mPasswordView.requestFocus();
+                }
             }
         }
 
@@ -210,6 +221,18 @@ public class LoginActivity extends AppCompatActivity {
             mAuthTask = null;
             showProgress(false);
         }
+    }
+
+    public void informAboutLoginSuccess(String token) {
+        Snackbar mySnackbar = Snackbar.make(findViewById(R.id.login_form),
+                "Login succeed. Token: " + token, Snackbar.LENGTH_SHORT);
+        mySnackbar.show();
+    }
+
+    public void informAboutError(Throwable error) {
+        Snackbar mySnackbar = Snackbar.make(findViewById(R.id.login_form),
+                "Error: " + error.getMessage(), Snackbar.LENGTH_SHORT);
+        mySnackbar.show();
     }
 }
 
