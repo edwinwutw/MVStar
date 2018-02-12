@@ -90,6 +90,8 @@ public class LoginViewModel extends ViewModel {
         private final String mEmail;
         private final String mPassword;
 
+        private boolean emailMatched;
+
         UserLoginTask(String email, String password) {
             mEmail = email;
             mPassword = password;
@@ -102,10 +104,12 @@ public class LoginViewModel extends ViewModel {
             // get credentials from repository
             String[] DUMMYLIST = LoginRepository.getInstance().attemptGetCrenditials();
 
+            emailMatched = false;
             for (String credential : DUMMYLIST) {
                 String[] pieces = credential.split(":");
                 if (pieces[0].equals(mEmail)) {
                     // Account exists, return true if the password matches.
+                    emailMatched = true;
                     return pieces[1].equals(mPassword);
                 }
             }
@@ -118,12 +122,13 @@ public class LoginViewModel extends ViewModel {
         protected void onPostExecute(final Boolean success) {
             mAuthTask = null;
 
-            boolean isemailerror = true;
+            boolean isemailerror = false;
             String failerror = "";
-            // TBD, now temp set password error only if not success
             if (!success) {
-                isemailerror = false;
-                failerror = mContext.getString(R.string.error_incorrect_password);
+                isemailerror = !emailMatched;
+
+                failerror = isemailerror ? mContext.getString(R.string.error_invalid_email) :
+                        mContext.getString(R.string.error_incorrect_password);
             }
 
             LoginResult loginresult = LoginResult.create(mEmail, mPassword, true, success, isemailerror, failerror);

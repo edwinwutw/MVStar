@@ -84,7 +84,7 @@ public class LoginActivity extends AppCompatActivity {
                     else {
                         showProgress(false);
                         if (loginresult.success()) {
-                            ;//show toast finish();
+                            informAboutLoginSuccess("token");
                         } else {
                             if (loginresult.isemailerror())
                                 requestEmailFocus(loginresult.failerror());
@@ -173,6 +173,18 @@ public class LoginActivity extends AppCompatActivity {
             mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
             mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
+    }
+
+    public void informAboutLoginSuccess(String token) {
+        Snackbar mySnackbar = Snackbar.make(findViewById(R.id.login_form),
+                "Login succeed. Token: " + token, Snackbar.LENGTH_SHORT);
+        mySnackbar.show();
+    }
+
+    public void informAboutError(Throwable error) {
+        Snackbar mySnackbar = Snackbar.make(findViewById(R.id.login_form),
+                "Error: " + error.getMessage(), Snackbar.LENGTH_SHORT);
+        mySnackbar.show();
     }
 }
 
