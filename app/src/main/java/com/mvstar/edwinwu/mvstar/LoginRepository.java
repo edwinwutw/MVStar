@@ -3,7 +3,13 @@ package com.mvstar.edwinwu.mvstar;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import io.reactivex.Observable;
+import io.reactivex.Single;
+import io.reactivex.SingleObserver;
 
 /**
  * Created by edwinwu on 2018/2/9.
@@ -38,15 +44,19 @@ public class LoginRepository {
         return sInstance;
     }
 
-    public String[] attemptGetCrenditials() {
+    public Single<List<ValidEmailInfo>> attemptGetCrenditials() {
 
         try {
             // Simulate network access.
-            Thread.sleep(2000);
+            Thread.sleep(100);
         } catch (InterruptedException e) {
             return null;
         }
+        return Observable.fromIterable(Arrays.asList(DUMMY_CREDENTIALS))
+                .map(item -> {
+                    String[] pieces = item.split(":");
+                    return ValidEmailInfo.create(pieces[0], pieces[1]);
+                }).toList();
 
-        return DUMMY_CREDENTIALS;
     }
 }

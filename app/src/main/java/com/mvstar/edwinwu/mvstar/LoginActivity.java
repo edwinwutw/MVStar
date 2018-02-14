@@ -79,22 +79,19 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onChanged(@Nullable LoginResult loginresult) {
                 if (loginresult != null) {
-                    if (!loginresult.finish())
-                        showProgress(true);
-                    else {
-                        showProgress(false);
-                        if (loginresult.success()) {
-                            informAboutLoginSuccess("token");
-                        } else {
-                            if (loginresult.isemailerror())
-                                requestEmailFocus(loginresult.failerror());
-                            else
-                                requestPasswordFocus(loginresult.failerror());
-                        }
+                    if (loginresult.success()) {
+                        informAboutLoginSuccess("token");
+                    } else {
+                        if (loginresult.isemailerror())
+                            requestEmailFocus(loginresult.failerror());
+                        else
+                            requestPasswordFocus(loginresult.failerror());
                     }
                 }
             }
         });
+
+        observeValidatingStatus();
     }
 
     /**
@@ -135,8 +132,8 @@ public class LoginActivity extends AppCompatActivity {
         mPasswordView.requestFocus();
     }
 
-    void displayToast(String text) {
-        //toast(text)
+    private void observeValidatingStatus() {
+        mViewModel.getValdateStatus().observe(this, this::showProgress);
     }
 
     /**
