@@ -10,6 +10,7 @@ import java.util.List;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 import io.reactivex.SingleObserver;
+import io.reactivex.functions.Consumer;
 
 /**
  * Created by edwinwu on 2018/2/9.
@@ -44,19 +45,22 @@ public class LoginRepository {
         return sInstance;
     }
 
-    public Single<List<ValidEmailInfo>> attemptGetCrenditials() {
+    public List<ValidEmailInfo> attemptGetCrenditials() {
 
         try {
             // Simulate network access.
-            Thread.sleep(100);
+            Thread.sleep(2000);
         } catch (InterruptedException e) {
             return null;
         }
-        return Observable.fromIterable(Arrays.asList(DUMMY_CREDENTIALS))
+
+        final List<ValidEmailInfo> list = new ArrayList<>();
+        Observable.fromIterable(Arrays.asList(DUMMY_CREDENTIALS))
                 .map(item -> {
                     String[] pieces = item.split(":");
                     return ValidEmailInfo.create(pieces[0], pieces[1]);
-                }).toList();
-
+                }).toList()
+                .subscribe(validEmailInfos -> { list.addAll(validEmailInfos);});
+        return list;
     }
 }
