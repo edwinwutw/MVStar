@@ -1,11 +1,7 @@
 package com.mvstar.edwinwu.mvstar;
 
-import android.app.Activity;
-import android.os.Build;
-import android.support.design.widget.Snackbar;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
@@ -14,16 +10,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
-import org.robolectric.shadows.ShadowApplication;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.plugins.RxJavaPlugins;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
-import static org.robolectric.Shadows.shadowOf;
+import static org.junit.Assert.assertThat;
 
 /**
  * Created by edwinwu on 2018/2/20.
@@ -88,4 +81,5 @@ public class LoginActivityTest {
 
         assertThat("Show error for Email field", mPasswordView.getError(), is(CoreMatchers.notNullValue()));
     }
+
 }
